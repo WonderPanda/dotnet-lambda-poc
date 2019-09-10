@@ -1,5 +1,6 @@
 import * as aws from "@pulumi/aws";
 import * as pulumi from "@pulumi/pulumi";
+import { targetGroup } from "./load-balancer";
 import { named } from "./utilities";
 
 const lambdaRolePolicyName = named("lambdaRolePolicy");
@@ -46,3 +47,42 @@ export const lambda = lambdaRolePolicy.role.apply(x => {
   });
   return lambda;
 });
+
+// const lambdaPermission = lambda.apply(x => {
+//   return new aws.lambda.Permission('permission', {
+//     action: 'lambda:InvokeFunction',
+//     function: x.name,
+//     principal: 'elasticloadbalancing.amazonaws.com'
+//   })
+// });
+
+// const whatever = awsx.elasticloadbalancingv2.TargetGroupAttachment;
+
+// const test = targetGroup.attachTarget();
+
+const targetGroupAttachmentName = named("target-group-attachment");
+const lambdaGroupAttachment = lambda.apply(x => {
+  const attachment = targetGroup.attachTarget(targetGroupAttachmentName, x);
+  return attachment;
+});
+
+// {
+//   "Version": "2012-10-17",
+//   "Id": "default",
+//   "Statement": [
+//     {
+//       "Sid": "lambda-5e00643d-9ab0-44df-8d90-0f12be404e90",
+//       "Effect": "Allow",
+//       "Principal": {
+//         "Service": "elasticloadbalancing.amazonaws.com"
+//       },
+//       "Action": "lambda:InvokeFunction",
+//       "Resource": "arn:aws:lambda:us-east-1:505708630706:function:lambda-dotnet-lambda-poc",
+//       "Condition": {
+//         "ArnLike": {
+//           "AWS:SourceArn": "arn:aws:elasticloadbalancing:us-east-1:505708630706:targetgroup/lambda-YniUL3Aln1G6c8fssFoc/4fa2128ea3b8e7fc"
+//         }
+//       }
+//     }
+//   ]
+// }

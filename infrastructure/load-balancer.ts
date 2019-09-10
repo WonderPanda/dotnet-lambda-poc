@@ -30,11 +30,16 @@ export const loadBalancer = new awsx.elasticloadbalancingv2.ApplicationLoadBalan
 );
 
 const targetGroupName = named("target-group");
-const targetGroup = loadBalancer.createTargetGroup(targetGroupName, {
+export const targetGroup = loadBalancer.createTargetGroup(targetGroupName, {
   name: targetGroupName,
   port: 80,
-  protocol: "HTTP"
+  protocol: "HTTP",
+  targetType: "lambda"
 });
+
+// const targetGroupAttachment = new aws.elasticloadbalancingv2.TargetGroupAttachment(targetGroupAttachmentName, {
+//   targetGroupArn: targetGroup.targetGroup.arn
+// });
 
 const listenerName = named("ALB-listener");
 const listener = targetGroup.createListener(listenerName, {
